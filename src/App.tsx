@@ -1,33 +1,57 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import axios from 'axios';
+
+interface GHAPIRepo {
+  id: number;
+  html_url: string;
+  owner: {
+    login: string;
+  };
+  name: string;
+  stargazers_count: number;
+}
+
+interface GHAPISearchRepos {
+  data: {
+    items: Array<GHAPIRepo>
+  };
+}
 
 class App extends React.Component<AppProps, AppState> {
 
   constructor(props: AppProps) {
     super(props)
     this.state = {
-      trends: []
+      repos: []
     };
   }
 
   componentDidMount() {
-    let trends = [
-      {
-        url: "https://github.com/iwataka/dotfiles",
-        owner: "iwataka",
-        repo: "dotfiles"
-      }
-    ];
-    this.setState({
-      trends: trends
-    });
+    let self = this;
+    axios.get('https://api.github.com/search/repositories?q=pushed:>2021-07-01&sort=stars&order=desc&per_page=10')
+      .then(function (res: GHAPISearchRepos) {
+        console.log(res);
+        let repos = res.data.items.map(i => {
+          return {
+            url: i.html_url,
+            owner: i.owner.login,
+            name: i.name,
+            id: i.id,
+            stars: i.stargazers_count
+          };
+        });
+        self.setState({
+          repos: repos
+        });
+      })
   }
 
   render() {
     return (
       <div>
-        <GHTrendList trends={this.state.trends}/>
+        <GHRepoList repos={this.state.repos}/>
       </div>
     );
   }
@@ -36,20 +60,20 @@ class App extends React.Component<AppProps, AppState> {
 interface AppProps {}
 
 interface AppState {
-  trends: Array<GHTrendProps>;
+  repos: Array<GHRepoProps>;
 }
 
-class GHTrendList extends React.Component<GHTrendListProps> {
+class GHRepoList extends React.Component<GHRepoListProps> {
 
-  constructor(props: GHTrendListProps) {
+  constructor(props: GHRepoListProps) {
     super(props);
   }
 
   render() {
     return (
       <ul>
-        {this.props.trends.map(trend => (
-          <li key={trend.url}>{trend.owner}/{trend.repo}</li>
+        {this.props.repos.map(repo => (
+          <li key={repo.id}><GHRepo owner={repo.owner} name={repo.name} id={repo.id} url={repo.url} stars={repo.stars}/></li>
         ))}
       </ul>
     )
@@ -57,22 +81,26 @@ class GHTrendList extends React.Component<GHTrendListProps> {
 
 }
 
-interface GHTrendListProps {
-  trends: Array<GHTrendProps>;
+interface GHRepoListProps {
+  repos: Array<GHRepoProps>;
 }
 
-class GHTrend extends React.Component {
+class GHRepo extends React.Component<GHRepoProps> {
   render() {
     return (
-      <div>trend</div>
+      <div>
+        <a href={this.props.url} target="_blank">{this.props.owner}/{this.props.name}</a> | {this.props.stars}
+      </div>
     )
   }
 }
 
-interface GHTrendProps {
+interface GHRepoProps {
   owner: string;
-  repo: string;
+  name: string;
   url: string;
+  id: number;
+  stars: number;
 }
 
 export default App;
