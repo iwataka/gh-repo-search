@@ -33,17 +33,8 @@ class App extends React.Component<AppProps, AppState> {
     axios.get('https://api.github.com/search/repositories?q=pushed:>2021-07-01&sort=stars&order=desc&per_page=10')
       .then(function (res: GHAPISearchRepos) {
         console.log(res);
-        let repos = res.data.items.map(i => {
-          return {
-            url: i.html_url,
-            owner: i.owner.login,
-            name: i.name,
-            id: i.id,
-            stars: i.stargazers_count
-          };
-        });
         self.setState({
-          repos: repos
+          repos: res.data.items
         });
       })
   }
@@ -60,7 +51,7 @@ class App extends React.Component<AppProps, AppState> {
 interface AppProps {}
 
 interface AppState {
-  repos: Array<GHRepoProps>;
+  repos: Array<GHAPIRepo>;
 }
 
 class GHRepoList extends React.Component<GHRepoListProps> {
@@ -73,7 +64,7 @@ class GHRepoList extends React.Component<GHRepoListProps> {
     return (
       <ul>
         {this.props.repos.map(repo => (
-          <li key={repo.id}><GHRepo owner={repo.owner} name={repo.name} id={repo.id} url={repo.url} stars={repo.stars}/></li>
+          <li key={repo.id}><GHRepo repo={repo}/></li>
         ))}
       </ul>
     )
@@ -82,25 +73,22 @@ class GHRepoList extends React.Component<GHRepoListProps> {
 }
 
 interface GHRepoListProps {
-  repos: Array<GHRepoProps>;
+  repos: Array<GHAPIRepo>;
 }
 
 class GHRepo extends React.Component<GHRepoProps> {
   render() {
+    let r = this.props.repo
     return (
       <div>
-        <a href={this.props.url} target="_blank">{this.props.owner}/{this.props.name}</a> | {this.props.stars}
+        <a href={r.html_url} target="_blank">{r.owner.login}/{r.name}</a> | {r.stargazers_count}
       </div>
     )
   }
 }
 
 interface GHRepoProps {
-  owner: string;
-  name: string;
-  url: string;
-  id: number;
-  stars: number;
+  repo: GHAPIRepo;
 }
 
 export default App;
