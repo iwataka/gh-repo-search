@@ -16,6 +16,11 @@ import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
+const defaultLanguage = "all";
+const defaultSort = "stars";
+const defaultPushed = ">2021-01-01";
+const defaultPerPage = 10;
+
 interface GHAPIRepo {
   id: number;
   html_url: string;
@@ -37,10 +42,10 @@ interface GHAPISearchRepos {
 
 class App extends React.Component<AppProps, AppState> {
 
-  private language: string = "all";
-  private sort: string = "stars";
-  private pushed: string = ">2021-01-01";
-  private perPage: number = 10;
+  private language = defaultLanguage;
+  private sort = defaultSort;
+  private pushed = defaultPushed;
+  private perPage = defaultPerPage;
 
   constructor(props: AppProps) {
     super(props)
@@ -136,7 +141,7 @@ class GHRepoList extends React.Component<GHRepoListProps> {
           <TextField
             required
             label="language"
-            defaultValue="all"
+            defaultValue={defaultLanguage}
             onChange={this.props.languageHandler}
           />
         </Grid>
@@ -144,7 +149,7 @@ class GHRepoList extends React.Component<GHRepoListProps> {
           <TextField
             required
             label="sort"
-            defaultValue="stars"
+            defaultValue={defaultSort}
             onChange={this.props.sortHandler}
           />
         </Grid>
@@ -152,7 +157,7 @@ class GHRepoList extends React.Component<GHRepoListProps> {
           <TextField
             required
             label="pushed"
-            defaultValue=">2021-07-01"
+            defaultValue={defaultPushed}
             onChange={this.props.pushedHandler}
           />
         </Grid>
@@ -161,7 +166,7 @@ class GHRepoList extends React.Component<GHRepoListProps> {
             required
             type="number"
             label="number of repos"
-            defaultValue="10"
+            defaultValue={defaultPerPage}
             onChange={this.props.perPageHandler}
           />
         </Grid>
