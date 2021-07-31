@@ -13,6 +13,8 @@ import Toolbar from '@material-ui/core/Toolbar'
 import StarRateIcon from '@material-ui/icons/StarRate';
 import RestaurantIcon from '@material-ui/icons/Restaurant';
 import Chip from '@material-ui/core/Chip';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 
 interface GHAPIRepo {
   id: number;
@@ -35,6 +37,11 @@ interface GHAPISearchRepos {
 
 class App extends React.Component<AppProps, AppState> {
 
+  private language: string = "all";
+  private sort: string = "stars";
+  private pushed: string = ">2021-01-01";
+  private perPage: number = 10;
+
   constructor(props: AppProps) {
     super(props)
     this.state = {
@@ -43,14 +50,34 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidMount() {
+    this.searchHandler();
+  }
+
+  searchHandler() {
     let self = this;
-    axios.get('https://api.github.com/search/repositories?q=pushed:>2021-07-01&sort=stars&order=desc&per_page=10')
+    axios.get(`https://api.github.com/search/repositories?q=language:${self.language}+pushed:${self.pushed}&sort=${self.sort}&order=desc&per_page=${self.perPage}`)
       .then(function (res: GHAPISearchRepos) {
         console.log(res);
         self.setState({
           repos: res.data.items
         });
-      })
+      });
+  }
+
+  languageHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    this.language = e.target.value;
+  }
+
+  sortHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    this.sort = e.target.value;
+  }
+
+  pushedHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    this.pushed = e.target.value;
+  }
+
+  perPageHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    this.perPage = parseInt(e.target.value, 10);
   }
 
   render() {
@@ -71,7 +98,14 @@ class App extends React.Component<AppProps, AppState> {
         <br/>
         <Container maxWidth="md">
           <CssBaseline/>
-          <GHRepoList repos={this.state.repos}/>
+          <GHRepoList
+            repos={this.state.repos}
+            searchHandler={this.searchHandler.bind(this)}
+            languageHandler={this.languageHandler.bind(this)}
+            sortHandler={this.sortHandler.bind(this)}
+            pushedHandler={this.pushedHandler.bind(this)}
+            perPageHandler={this.perPageHandler.bind(this)}
+          />
         </Container>
       </ThemeProvider>
     );
@@ -98,6 +132,48 @@ class GHRepoList extends React.Component<GHRepoListProps> {
             Search Repositories
           </Typography>
         </Grid>
+        <Grid item>
+          <TextField
+            required
+            label="language"
+            defaultValue="all"
+            onChange={this.props.languageHandler}
+          />
+        </Grid>
+        <Grid item>
+          <TextField
+            required
+            label="sort"
+            defaultValue="stars"
+            onChange={this.props.sortHandler}
+          />
+        </Grid>
+        <Grid item>
+          <TextField
+            required
+            label="pushed"
+            defaultValue=">2021-07-01"
+            onChange={this.props.pushedHandler}
+          />
+        </Grid>
+        <Grid item>
+          <TextField
+            required
+            type="number"
+            label="number of repos"
+            defaultValue="10"
+            onChange={this.props.perPageHandler}
+          />
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={this.props.searchHandler}
+          >
+            Search
+          </Button>
+        </Grid>
         {this.props.repos.map(repo => (
           <Grid item xs={12}>
             <GHRepo repo={repo}/>
@@ -111,6 +187,11 @@ class GHRepoList extends React.Component<GHRepoListProps> {
 
 interface GHRepoListProps {
   repos: Array<GHAPIRepo>;
+  searchHandler: () => void;
+  languageHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  sortHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  pushedHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  perPageHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 class GHRepo extends React.Component<GHRepoProps> {
