@@ -1,24 +1,24 @@
-import React from 'react';
-import './App.css';
-import axios from 'axios';
-import Container from '@material-ui/core/Container'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { createTheme, ThemeProvider } from '@material-ui/core/styles'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import StarRateIcon from '@material-ui/icons/StarRate';
-import RestaurantIcon from '@material-ui/icons/Restaurant';
-import Chip from '@material-ui/core/Chip';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import React from "react";
+import "./App.css";
+import axios from "axios";
+import Container from "@material-ui/core/Container";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import StarRateIcon from "@material-ui/icons/StarRate";
+import RestaurantIcon from "@material-ui/icons/Restaurant";
+import Chip from "@material-ui/core/Chip";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 
 const defaultLanguage = "all";
 const defaultSort = "stars";
@@ -41,12 +41,11 @@ interface GHAPIRepo {
 
 interface GHAPISearchRepos {
   data: {
-    items: Array<GHAPIRepo>
+    items: Array<GHAPIRepo>;
   };
 }
 
 class App extends React.Component<AppProps, AppState> {
-
   private language = defaultLanguage;
   private sort = defaultSort;
   private pushed = defaultPushed;
@@ -54,9 +53,9 @@ class App extends React.Component<AppProps, AppState> {
   private order = defaultOrder;
 
   constructor(props: AppProps) {
-    super(props)
+    super(props);
     this.state = {
-      repos: []
+      repos: [],
     };
   }
 
@@ -65,13 +64,16 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   searchHandler(): void {
-    axios.get(`https://api.github.com/search/repositories?q=language:${this.language}+pushed:${this.pushed}&sort=${this.sort}&order=${this.order}&per_page=${this.perPage}`)
+    axios
+      .get(
+        `https://api.github.com/search/repositories?q=language:${this.language}+pushed:${this.pushed}&sort=${this.sort}&order=${this.order}&per_page=${this.perPage}`
+      )
       .then(this.searchAPIHandler.bind(this));
   }
 
   private searchAPIHandler(res: GHAPISearchRepos): void {
     this.setState({
-      repos: res.data.items
+      repos: res.data.items,
     });
   }
 
@@ -98,21 +100,19 @@ class App extends React.Component<AppProps, AppState> {
   render(): React.ReactNode {
     const darkTheme = createTheme({
       palette: {
-        type: 'dark',
+        type: "dark",
       },
     });
     return (
       <ThemeProvider theme={darkTheme}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6">
-              GitHub Repository Viewer
-            </Typography>
+            <Typography variant="h6">GitHub Repository Viewer</Typography>
           </Toolbar>
         </AppBar>
-        <br/>
+        <br />
         <Container maxWidth="md">
-          <CssBaseline/>
+          <CssBaseline />
           <GHRepoList
             repos={this.state.repos}
             searchHandler={this.searchHandler.bind(this)}
@@ -135,18 +135,17 @@ interface AppState {
 }
 
 class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
-
   constructor(props: GHRepoListProps) {
     super(props);
     this.state = {
-      order: defaultOrder
+      order: defaultOrder,
     };
   }
 
   orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string): void {
     this.props.orderHandler(e, nextView);
     this.setState({
-      order: nextView
+      order: nextView,
     });
   }
 
@@ -154,9 +153,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
     return (
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Typography variant="h2">
-            Search Repositories
-          </Typography>
+          <Typography variant="h2">Search Repositories</Typography>
         </Grid>
         <Grid item>
           <TextField
@@ -192,12 +189,16 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
           />
         </Grid>
         <Grid item>
-          <ToggleButtonGroup exclusive value={this.state.order} onChange={this.orderHandler.bind(this)}>
+          <ToggleButtonGroup
+            exclusive
+            value={this.state.order}
+            onChange={this.orderHandler.bind(this)}
+          >
             <ToggleButton value="desc">
-              <ArrowDownwardIcon/>
+              <ArrowDownwardIcon />
             </ToggleButton>
             <ToggleButton value="asc">
-              <ArrowUpwardIcon/>
+              <ArrowUpwardIcon />
             </ToggleButton>
           </ToggleButtonGroup>
         </Grid>
@@ -210,15 +211,14 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
             Search
           </Button>
         </Grid>
-        {this.props.repos.map(repo => (
+        {this.props.repos.map((repo) => (
           <Grid item xs={12} key={repo.id}>
-            <GHRepo repo={repo}/>
+            <GHRepo repo={repo} />
           </Grid>
         ))}
       </Grid>
-    )
+    );
   }
-
 }
 
 interface GHRepoListProps {
@@ -240,7 +240,7 @@ class GHRepo extends React.Component<GHRepoProps> {
     const r = this.props.repo;
     let langChip = null;
     if (r.language) {
-      langChip = <Chip label={r.language}/>;
+      langChip = <Chip label={r.language} />;
     }
     return (
       <Card>
@@ -248,18 +248,16 @@ class GHRepo extends React.Component<GHRepoProps> {
           <Typography variant="h5">
             {r.owner.login}/{r.name}
           </Typography>
-          <Typography>
-            {r.description}
-          </Typography>
-          <br/>
+          <Typography>{r.description}</Typography>
+          <br />
           <Typography>
             {langChip}
-            <Chip icon={<StarRateIcon/>} label={r.stargazers_count}/>
-            <Chip icon={<RestaurantIcon/>} label={r.forks_count}/>
+            <Chip icon={<StarRateIcon />} label={r.stargazers_count} />
+            <Chip icon={<RestaurantIcon />} label={r.forks_count} />
           </Typography>
         </CardContent>
       </Card>
-    )
+    );
   }
 }
 
