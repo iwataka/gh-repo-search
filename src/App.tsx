@@ -161,6 +161,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
             label="language"
             defaultValue={defaultLanguage}
             onChange={this.props.languageHandler}
+            id="language-input-field"
           />
         </Grid>
         <Grid item>
@@ -169,6 +170,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
             label="sort"
             defaultValue={defaultSort}
             onChange={this.props.sortHandler}
+            id="sort-input-field"
           />
         </Grid>
         <Grid item>
@@ -177,6 +179,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
             label="pushed"
             defaultValue={defaultPushed}
             onChange={this.props.pushedHandler}
+            id="pushed-input-field"
           />
         </Grid>
         <Grid item>
@@ -186,6 +189,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
             label="number of repos"
             defaultValue={defaultPerPage}
             onChange={this.props.perPageHandler}
+            id="perPage-input-field"
           />
         </Grid>
         <Grid item>
