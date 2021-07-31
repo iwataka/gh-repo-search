@@ -60,42 +60,42 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.searchHandler();
   }
 
-  searchHandler() {
-    let self = this;
-    axios.get(`https://api.github.com/search/repositories?q=language:${self.language}+pushed:${self.pushed}&sort=${self.sort}&order=${self.order}&per_page=${self.perPage}`)
-      .then(function (res: GHAPISearchRepos) {
-        console.log(res);
-        self.setState({
-          repos: res.data.items
-        });
-      });
+  searchHandler(): void {
+    axios.get(`https://api.github.com/search/repositories?q=language:${this.language}+pushed:${this.pushed}&sort=${this.sort}&order=${this.order}&per_page=${this.perPage}`)
+      .then(this.searchAPIHandler.bind(this));
   }
 
-  languageHandler(e: React.ChangeEvent<HTMLInputElement>) {
+  private searchAPIHandler(res: GHAPISearchRepos): void {
+    this.setState({
+      repos: res.data.items
+    });
+  }
+
+  languageHandler(e: React.ChangeEvent<HTMLInputElement>): void {
     this.language = e.target.value;
   }
 
-  sortHandler(e: React.ChangeEvent<HTMLInputElement>) {
+  sortHandler(e: React.ChangeEvent<HTMLInputElement>): void {
     this.sort = e.target.value;
   }
 
-  pushedHandler(e: React.ChangeEvent<HTMLInputElement>) {
+  pushedHandler(e: React.ChangeEvent<HTMLInputElement>): void {
     this.pushed = e.target.value;
   }
 
-  perPageHandler(e: React.ChangeEvent<HTMLInputElement>) {
+  perPageHandler(e: React.ChangeEvent<HTMLInputElement>): void {
     this.perPage = parseInt(e.target.value, 10);
   }
 
-  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string) {
+  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string): void {
     this.order = nextView;
   }
 
-  render() {
+  render(): React.ReactNode {
     const darkTheme = createTheme({
       palette: {
         type: 'dark',
@@ -128,7 +128,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 }
 
-interface AppProps {}
+class AppProps {}
 
 interface AppState {
   repos: Array<GHAPIRepo>;
@@ -143,7 +143,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
     };
   }
 
-  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string) {
+  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string): void {
     this.props.orderHandler(e, nextView);
     this.setState({
       order: nextView
@@ -211,7 +211,7 @@ class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
           </Button>
         </Grid>
         {this.props.repos.map(repo => (
-          <Grid item xs={12}>
+          <Grid item xs={12} key={repo.id}>
             <GHRepo repo={repo}/>
           </Grid>
         ))}
@@ -237,7 +237,7 @@ interface GHRepoListState {
 
 class GHRepo extends React.Component<GHRepoProps> {
   render() {
-    let r = this.props.repo;
+    const r = this.props.repo;
     let langChip = null;
     if (r.language) {
       langChip = <Chip label={r.language}/>;
