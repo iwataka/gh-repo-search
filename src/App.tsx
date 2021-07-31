@@ -1,7 +1,18 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
+import Container from '@material-ui/core/Container'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import { createTheme, ThemeProvider } from '@material-ui/core/styles'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import StarRateIcon from '@material-ui/icons/StarRate';
+import RestaurantIcon from '@material-ui/icons/Restaurant';
+import Chip from '@material-ui/core/Chip';
 
 interface GHAPIRepo {
   id: number;
@@ -10,7 +21,10 @@ interface GHAPIRepo {
     login: string;
   };
   name: string;
+  description: string;
+  forks_count: number;
   stargazers_count: number;
+  language: string;
 }
 
 interface GHAPISearchRepos {
@@ -40,10 +54,26 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
+    const darkTheme = createTheme({
+      palette: {
+        type: 'dark',
+      },
+    });
     return (
-      <div>
-        <GHRepoList repos={this.state.repos}/>
-      </div>
+      <ThemeProvider theme={darkTheme}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6">
+              GitHub Repository Viewer
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <br/>
+        <Container maxWidth="md">
+          <CssBaseline/>
+          <GHRepoList repos={this.state.repos}/>
+        </Container>
+      </ThemeProvider>
     );
   }
 }
@@ -62,11 +92,18 @@ class GHRepoList extends React.Component<GHRepoListProps> {
 
   render() {
     return (
-      <ul>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography variant="h2">
+            Search Repositories
+          </Typography>
+        </Grid>
         {this.props.repos.map(repo => (
-          <li key={repo.id}><GHRepo repo={repo}/></li>
+          <Grid item xs={12}>
+            <GHRepo repo={repo}/>
+          </Grid>
         ))}
-      </ul>
+      </Grid>
     )
   }
 
@@ -78,11 +115,28 @@ interface GHRepoListProps {
 
 class GHRepo extends React.Component<GHRepoProps> {
   render() {
-    let r = this.props.repo
+    let r = this.props.repo;
+    let langChip = null;
+    if (r.language) {
+      langChip = <Chip label={r.language}/>;
+    }
     return (
-      <div>
-        <a href={r.html_url} target="_blank">{r.owner.login}/{r.name}</a> | {r.stargazers_count}
-      </div>
+      <Card>
+        <CardContent>
+          <Typography variant="h5">
+            {r.owner.login}/{r.name}
+          </Typography>
+          <Typography>
+            {r.description}
+          </Typography>
+          <br/>
+          <Typography>
+            {langChip}
+            <Chip icon={<StarRateIcon/>} label={r.stargazers_count}/>
+            <Chip icon={<RestaurantIcon/>} label={r.forks_count}/>
+          </Typography>
+        </CardContent>
+      </Card>
     )
   }
 }
