@@ -15,11 +15,16 @@ import RestaurantIcon from '@material-ui/icons/Restaurant';
 import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 
 const defaultLanguage = "all";
 const defaultSort = "stars";
 const defaultPushed = ">2021-01-01";
 const defaultPerPage = 10;
+const defaultOrder = "desc";
 
 interface GHAPIRepo {
   id: number;
@@ -46,6 +51,7 @@ class App extends React.Component<AppProps, AppState> {
   private sort = defaultSort;
   private pushed = defaultPushed;
   private perPage = defaultPerPage;
+  private order = defaultOrder;
 
   constructor(props: AppProps) {
     super(props)
@@ -60,7 +66,7 @@ class App extends React.Component<AppProps, AppState> {
 
   searchHandler() {
     let self = this;
-    axios.get(`https://api.github.com/search/repositories?q=language:${self.language}+pushed:${self.pushed}&sort=${self.sort}&order=desc&per_page=${self.perPage}`)
+    axios.get(`https://api.github.com/search/repositories?q=language:${self.language}+pushed:${self.pushed}&sort=${self.sort}&order=${self.order}&per_page=${self.perPage}`)
       .then(function (res: GHAPISearchRepos) {
         console.log(res);
         self.setState({
@@ -83,6 +89,10 @@ class App extends React.Component<AppProps, AppState> {
 
   perPageHandler(e: React.ChangeEvent<HTMLInputElement>) {
     this.perPage = parseInt(e.target.value, 10);
+  }
+
+  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string) {
+    this.order = nextView;
   }
 
   render() {
@@ -110,6 +120,7 @@ class App extends React.Component<AppProps, AppState> {
             sortHandler={this.sortHandler.bind(this)}
             pushedHandler={this.pushedHandler.bind(this)}
             perPageHandler={this.perPageHandler.bind(this)}
+            orderHandler={this.orderHandler.bind(this)}
           />
         </Container>
       </ThemeProvider>
@@ -123,10 +134,20 @@ interface AppState {
   repos: Array<GHAPIRepo>;
 }
 
-class GHRepoList extends React.Component<GHRepoListProps> {
+class GHRepoList extends React.Component<GHRepoListProps, GHRepoListState> {
 
   constructor(props: GHRepoListProps) {
     super(props);
+    this.state = {
+      order: defaultOrder
+    };
+  }
+
+  orderHandler(e: React.MouseEvent<HTMLElement>, nextView: string) {
+    this.props.orderHandler(e, nextView);
+    this.setState({
+      order: nextView
+    });
   }
 
   render() {
@@ -171,6 +192,16 @@ class GHRepoList extends React.Component<GHRepoListProps> {
           />
         </Grid>
         <Grid item>
+          <ToggleButtonGroup exclusive value={this.state.order} onChange={this.orderHandler.bind(this)}>
+            <ToggleButton value="desc">
+              <ArrowDownwardIcon/>
+            </ToggleButton>
+            <ToggleButton value="asc">
+              <ArrowUpwardIcon/>
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+        <Grid item>
           <Button
             variant="contained"
             color="primary"
@@ -197,6 +228,11 @@ interface GHRepoListProps {
   sortHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
   pushedHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
   perPageHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  orderHandler: (e: React.MouseEvent<HTMLElement>, nextView: string) => void;
+}
+
+interface GHRepoListState {
+  order: string;
 }
 
 class GHRepo extends React.Component<GHRepoProps> {
